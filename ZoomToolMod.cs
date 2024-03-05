@@ -106,7 +106,7 @@ public class ZoomToolMod : QuintessentialMod{
 			Zoom += 0.25f;
 		else if(settings.ZoomIn.Pressed())
 			Zoom -= 0.25f;
-		Zoom = Math.Max(1, Math.Min(3, Zoom));
+		Zoom = Math.Max(1, Math.Min(3.5f, Zoom));
 		ses.field_4009 = ReadjustPan(ses.field_4009, Input.ScreenSize(), oldZoom, Zoom);
 
 		RedrawScaled(() =>
