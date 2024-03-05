@@ -88,28 +88,30 @@ public class ZoomToolMod : QuintessentialMod{
 	public static void ScaleBoard(
 		On.SolutionEditorBase.orig_method_1984 orig,
 		SolutionEditorBase self,
-		Vector2 v1,
+		Vector2 pan,
 		Bounds2 bounds1,
 		Bounds2 bounds2,
 		bool b1,
 		Maybe<List<Molecule>> mls,
 		bool b2
 	){
-		if(self is not SolutionEditorScreen){
-			orig(self, v1, bounds1, bounds2, b1, mls, b2);
+		if(self is not SolutionEditorScreen ses){
+			orig(self, pan, bounds1, bounds2, b1, mls, b2);
 			return;
 		}
 
 		ZoomToolSettings settings = QApi.GetSettingsByType<ZoomToolSettings>();
+		float oldZoom = Zoom;
 		if(settings.ZoomOut.Pressed())
 			Zoom += 0.25f;
 		else if(settings.ZoomIn.Pressed())
 			Zoom -= 0.25f;
 		Zoom = Math.Max(1, Math.Min(3, Zoom));
+		ses.field_4009 = ReadjustPan(ses.field_4009, Input.ScreenSize(), oldZoom, Zoom);
 
 		RedrawScaled(() =>
 			orig(self,
-				v1,
+				ses.field_4009,
 				Bounds2.WithSize(bounds1.BottomLeft, bounds1.Size * Zoom),
 				Bounds2.WithSize(bounds2.BottomLeft, bounds2.Size * Zoom),
 				b1,
@@ -177,5 +179,11 @@ public class ZoomToolMod : QuintessentialMod{
 
 		class_115.field_1433 = origScreenSize;
 		class_135.method_263(ScaledTarget.method_1351().field_937, Color.White, /*image position*/new Vector2(0, 0), /*image width*/class_115.field_1433);
+	}
+
+	private static Vector2 ReadjustPan(Vector2 pan, Vector2 screenSize, float fromScale, float toScale){
+		// find the middle of the screen with the current scale
+		// find it's offset from the naive middle at the new scale
+		return (((screenSize * toScale) / 2) - (screenSize * fromScale) / 2) + pan;
 	}
 }
