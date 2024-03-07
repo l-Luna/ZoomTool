@@ -160,6 +160,18 @@ public class ZoomToolMod : QuintessentialMod{
 			}else
 				mode.method_1(self);
 		});
+
+		// match the start of the error highlight drawing sequence...
+		cursor.GotoNext(MoveType.After, instr => instr.MatchLdloc(25), // field763
+			instr => instr.MatchLdloca(26), // vector2_3
+			instr => instr.MatchCall<Vector2>("Rounded"));
+		// ...then jump just before the end of the sequence, letting other mods put stuff in-between
+		cursor.GotoNext(MoveType.Before, instr => instr.MatchCall("class_135", "method_272"));
+		// but still replace the call
+		cursor.Remove();
+		cursor.EmitDelegate<Action<class_256, Vector2>>((tex, pos) => {
+			class_135.method_263(tex, Color.White, pos / Zoom, tex.field_2056.ToVector2() / Zoom);
+		});
 	}
 
 	private static void RedrawScaled(Action orig){
